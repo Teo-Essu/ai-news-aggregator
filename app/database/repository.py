@@ -181,9 +181,7 @@ class Repository:
                     "published_at": article.published_at
                 })
         
-        anthropic_articles = self.session.query(AnthropicArticle).filter(
-            AnthropicArticle.markdown.isnot(None)
-        ).all()
+        anthropic_articles = self.session.query(AnthropicArticle).all()
         for article in anthropic_articles:
             key = f"anthropic:{article.guid}"
             if key not in seen_ids:
@@ -192,7 +190,7 @@ class Repository:
                     "id": article.guid,
                     "title": article.title,
                     "url": article.url,
-                    "content": article.markdown or article.description or "",
+                    "content": article.description or "",
                     "published_at": article.published_at
                 })
         
