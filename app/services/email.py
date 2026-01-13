@@ -10,7 +10,7 @@ load_dotenv()
 
 FROM_EMAIL = os.getenv("FROM_EMAIL")
 TO_EMAIL = os.getenv("TO_EMAIL")
-APP_PASSWORD = os.getenv("EMAIL_PASSWORD")
+APP_PASSWORD = os.getenv("APP_PASSWORD")
 
 
 def send_email(subject: str, body_text: str, body_html: str = None, recipients: list = None):
