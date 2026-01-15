@@ -18,7 +18,9 @@ services:
           property: connectionString
       - key: OPENAI_API_KEY
         sync: false
-      - key: MY_EMAIL
+      - key: FROM_EMAIL
+        sync: false
+      - key: TO_EMAIL
         sync: false
       - key: APP_PASSWORD
         sync: false
