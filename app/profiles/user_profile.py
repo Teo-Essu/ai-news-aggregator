@@ -1,7 +1,7 @@
 USER_PROFILE = {
-    "name": "Dave",
+    "name": "Teo",
     "title": "AI Engineer & Researcher",
-    "background": "Experienced AI engineer with deep interest in practical AI applications, research breakthroughs, and production-ready systems",
+    "background": "An intermediate AI engineer with deep interest in practical AI applications, research breakthroughs, and production-ready systems",
     "interests": [
         "Large Language Models (LLMs) and their applications",
         "Retrieval-Augmented Generation (RAG) systems",
@@ -21,5 +21,5 @@ USER_PROFILE = {
         "prefer_production_focus": True,
         "avoid_marketing_hype": True
     },
-    "expertise_level": "Advanced"
+    "expertise_level": "Intermediate",
 }
