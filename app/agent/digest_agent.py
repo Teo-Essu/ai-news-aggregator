@@ -4,6 +4,8 @@ from openai import OpenAI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+from app.agent.base_agent import BaseAgent
+
 load_dotenv()
 
 
@@ -23,10 +25,9 @@ Guidelines:
 - Avoid marketing fluff - focus on substance"""
 
 
-class DigestAgent:
+class DigestAgent(BaseAgent):
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.model = "gpt-4o-mini"
+        super().__init__("gpt-4o-mini")
         self.system_prompt = PROMPT
 
     def generate_digest(self, title: str, content: str, article_type: str) -> Optional[DigestOutput]:
