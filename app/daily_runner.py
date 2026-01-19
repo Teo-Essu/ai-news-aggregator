@@ -54,7 +54,7 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         }
         logger.info(f"✓ Scraped {results['scraping']['youtube']} YouTube videos, "
                     f"{results['scraping']['openai']} OpenAI articles, "
-                    f"{results['scraping']['anthropic']} Anthropic articles")
+                    f"{results['scraping']['anthropic']} Anthropic articles") 
         
         # logger.info("\n[2/5] Processing Anthropic markdown...")
         # anthropic_result = process_anthropic_markdown()
