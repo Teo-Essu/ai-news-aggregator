@@ -15,12 +15,12 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+repo = Repository()
 
 
 def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestResponse:
     curator = CuratorAgent(USER_PROFILE)
     email_agent = EmailAgent(USER_PROFILE)
-    repo = Repository()
     
     digests = repo.get_recent_digests(hours=hours)
     total = len(digests)
@@ -67,6 +67,14 @@ def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestRespon
 
 
 def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
+    if not repo.get_recent_digests(hours=hours):
+        logger.info(f"No new digests from the last {hours} hours; skipping email")
+        return {
+            "success": True,
+            "skipped": True,
+            "articles_count": 0,
+        }
+
     try:
         result = generate_email_digest(hours=hours, top_n=top_n)
         markdown_content = result.to_markdown()
@@ -79,7 +87,7 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
             body_text=markdown_content,
             body_html=html_content
         )
-        
+        repo.mark_digests_as_sent([a.digest_id for a in result.articles])
         logger.info("Email sent successfully!")
         return {
             "success": True,

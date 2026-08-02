@@ -1,7 +1,9 @@
 {
-    "folders": [
-        {
-            "path": "../.."
-        }
-    ]
+	"folders": [
+		{
+			"uri": "vscode-remote://wsl+ubuntu/home/teo/Documents/AI/ai-news-aggregator"
+		}
+	],
+	"remoteAuthority": "wsl+Ubuntu",
+	"settings": {}
 }

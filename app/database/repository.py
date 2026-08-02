@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from .models import YouTubeVideo, OpenAIArticle, AnthropicArticle, Digest
+from .models import YouTubeVideo, OpenAIArticle, AnthropicArticle, GoogleArticle, Digest
 from .connection import get_session
 
 
@@ -153,6 +153,22 @@ class Repository:
             formatted_articles, AnthropicArticle, "guid", "guid"
         )
 
+    def bulk_create_google_articles(self, articles: List[dict]) -> int:
+        formatted_articles = [
+            {
+                "guid": a["guid"],
+                "title": a["title"],
+                "url": a["url"],
+                "published_at": a["published_at"],
+                "description": a.get("description", ""),
+                "category": a.get("category"),
+            }
+            for a in articles
+        ]
+        return self._bulk_create_items(
+            formatted_articles, GoogleArticle, "guid", "guid"
+        )
+
     def get_anthropic_articles_without_markdown(
         self, limit: Optional[int] = None
     ) -> List[AnthropicArticle]:
@@ -251,6 +267,21 @@ class Repository:
                         "title": article.title,
                         "url": article.url,
                         "content": article.markdown or article.description or "",
+                        "published_at": article.published_at,
+                    }
+                )
+
+        google_articles = self.session.query(GoogleArticle).all()
+        for article in google_articles:
+            key = f"google:{article.guid}"
+            if key not in seen_ids:
+                articles.append(
+                    {
+                        "type": "google",
+                        "id": article.guid,
+                        "title": article.title,
+                        "url": article.url,
+                        "content": article.description or "",
                         "published_at": article.published_at,
                     }
                 )
