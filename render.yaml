@@ -1,21 +1,15 @@
-databases:
-  - name: ai-news-aggregator-db
-    databaseName: ai_news_aggregator
-    user: ai_news_user
-    plan: free
-
 services:
   - type: cron
     name: daily-digest-job
     env: docker
     dockerfilePath: ./Dockerfile
     schedule: "0 5 * * *"
-    dockerCommand: python main.py
+    # Apply pending migrations before running the pipeline.
+    dockerCommand: sh -c "alembic upgrade head && python main.py"
     envVars:
+      # Supabase session-pooler connection string; set in the Render dashboard.
       - key: DATABASE_URL
-        fromDatabase:
-          name: ai-news-aggregator-db
-          property: connectionString
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: FROM_EMAIL
