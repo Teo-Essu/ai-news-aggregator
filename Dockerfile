@@ -18,4 +18,4 @@ RUN uv pip install --system -r pyproject.toml
 
 COPY . .
 
-CMD ["sh", "-c", "alembic upgrade head && uv run main.py"]
+CMD ["sh", "-c", "alembic upgrade head && python main.py"]

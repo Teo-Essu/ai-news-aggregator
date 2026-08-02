@@ -4,8 +4,8 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     schedule: "0 5 * * *"
-    # Apply pending migrations before running the pipeline.
-    dockerCommand: sh -c "alembic upgrade head && python main.py"
+    # Command comes from the Dockerfile CMD, which runs
+    # `alembic upgrade head` before the pipeline.
     envVars:
       # Supabase session-pooler connection string; set in the Render dashboard.
       - key: DATABASE_URL
