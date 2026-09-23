@@ -55,7 +55,7 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         youtube_result = process_youtube_transcripts()
         results["processing"]["youtube"] = youtube_result
         logger.info(f"✓ Processed {youtube_result['processed']} transcripts "
-                    f"({youtube_result['unavailable']} unavailable)")
+                    f"({youtube_result['unavailable']} unavailable, {youtube_result['failed']} failed)")
         
         logger.info("\n[4/5] Creating digests for articles...")
         digest_result = process_digests()

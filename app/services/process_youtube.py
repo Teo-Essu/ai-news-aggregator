@@ -32,7 +32,7 @@ def process_youtube_transcripts(limit: Optional[int] = None) -> dict:
                 unavailable += 1
         except Exception as e:
             repo.update_youtube_video_transcript(video.video_id, TRANSCRIPT_UNAVAILABLE_MARKER)
-            unavailable += 1
+            failed += 1
             print(f"Error processing video {video.video_id}: {e}")
     
     return {
