@@ -54,8 +54,6 @@ class YouTubeScraper:
             return Transcript(text=text)
         except (TranscriptsDisabled, NoTranscriptFound):
             return None
-        except Exception:
-            return None
 
     def get_latest_videos(self, channel_id: str, hours: int = 24) -> list[ChannelVideo]:
         feed = feedparser.parse(self._get_rss_url(channel_id))
