@@ -33,7 +33,7 @@ class YouTubeScraper:
                 proxy_password=proxy_password
             )
         
-        self.transcript_api = YouTubeTranscriptApi()
+        self.transcript_api = YouTubeTranscriptApi(proxy_config=proxy_config)
 
     def _get_rss_url(self, channel_id: str) -> str:
         return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
