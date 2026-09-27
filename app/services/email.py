@@ -25,8 +25,6 @@ def send_email(subject: str, body_text: str, body_html: str = None, recipients: 
     
     if not FROM_EMAIL:
         raise ValueError("FROM_EMAIL environment variable is not set")
-    if not TO_EMAIL:
-        raise ValueError("TO_EMAIL environment variable is not set")
     if not APP_PASSWORD:
         raise ValueError("APP_PASSWORD environment variable is not set")
     

@@ -33,7 +33,7 @@ class YouTubeScraper:
                 proxy_password=proxy_password
             )
         
-        self.transcript_api = YouTubeTranscriptApi()
+        self.transcript_api = YouTubeTranscriptApi(proxy_config=proxy_config)
 
     def _get_rss_url(self, channel_id: str) -> str:
         return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
@@ -53,8 +53,6 @@ class YouTubeScraper:
             text = " ".join([snippet.text for snippet in transcript.snippets])
             return Transcript(text=text)
         except (TranscriptsDisabled, NoTranscriptFound):
-            return None
-        except Exception:
             return None
 
     def get_latest_videos(self, channel_id: str, hours: int = 24) -> list[ChannelVideo]:
