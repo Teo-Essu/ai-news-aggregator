@@ -1,3 +1,4 @@
+import argparse
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
@@ -112,5 +113,9 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
 
 
 if __name__ == "__main__":
-    result = run_daily_pipeline(hours=24, top_n=10)
+    parser = argparse.ArgumentParser(description="Run the daily AI news pipeline")
+    parser.add_argument("--hours", type=int, default=24, help="How far back to look for new articles")
+    parser.add_argument("--top-n", type=int, default=10, help="Number of articles to include in the email")
+    args = parser.parse_args()
+    result = run_daily_pipeline(hours=args.hours, top_n=args.top_n)
     exit(0 if result["success"] else 1)
