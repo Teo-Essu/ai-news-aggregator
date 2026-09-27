@@ -18,6 +18,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+class NoDigestsError(Exception):
+    pass
+
+
 def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestResponse:
     curator = CuratorAgent(USER_PROFILE)
     email_agent = EmailAgent(USER_PROFILE)
@@ -27,8 +31,7 @@ def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestRespon
     total = len(digests)
     
     if total == 0:
-        logger.warning(f"No digests found from the last {hours} hours")
-        raise ValueError("No digests available")
+        raise NoDigestsError(f"No digests found from the last {hours} hours")
     
     logger.info(f"Ranking {total} digests for email generation")
     ranked_articles = curator.rank_digests(digests)
@@ -84,8 +87,16 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
         logger.info("Email sent successfully!")
         return {
             "success": True,
+            "sent": True,
             "subject": subject,
             "articles_count": len(result.articles)
+        }
+    except NoDigestsError as e:
+        logger.info(f"Nothing to send: {e}")
+        return {
+            "success": True,
+            "sent": False,
+            "reason": str(e)
         }
     except ValueError as e:
         logger.error(f"Error sending email: {e}")
@@ -97,7 +108,9 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
 
 if __name__ == "__main__":
     result = send_digest_email(hours=24, top_n=10)
-    if result["success"]:
+    if result["success"] and not result["sent"]:
+        print(f"Nothing to send: {result['reason']}")
+    elif result["success"]:
         print("\n=== Email Digest Sent ===")
         print(f"Subject: {result['subject']}")
         print(f"Articles: {result['articles_count']}")

@@ -40,7 +40,7 @@ uv run python -m app.database.create_tables
 uv run python -m app.daily_runner
 ```
 
-The process exits with status 0 if the email was sent and 1 otherwise, so it can be scheduled with cron or a CI scheduler.
+The process exits with status 1 if any step hits a real error (see below) and 0 otherwise, so it can be scheduled with cron or a CI scheduler.
 
 Individual steps can also be run on their own:
 
@@ -60,7 +60,7 @@ uv run python -m app.services.process_email      # rank and send email
 - Recommended: `PROXY_USERNAME`, `PROXY_PASSWORD`. GitHub's runners are blocked by YouTube, so without a proxy YouTube videos are skipped.
 - Optional: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` to keep history in a hosted database. Without them, each run uses a fresh Postgres container, which is enough to email the last 24 hours of news.
 
-A run fails when no email is sent, including days with nothing new to summarize.
+A run fails only on real errors: an article summary fails, ranking fails, the email can't be sent, or an unexpected exception occurs. Days with nothing new to summarize finish successfully without sending an email. YouTube transcripts that can't be fetched (for example, blocked requests) are logged and retried on the next run but don't fail it.
 
 ## Tests
 
