@@ -52,6 +52,24 @@ uv run python -m app.services.process_curator    # rank and print
 uv run python -m app.services.process_email      # rank and send email
 ```
 
+## Scheduling with GitHub Actions
+
+`.github/workflows/daily-digest.yml` runs the pipeline every day at 06:00 UTC (edit the `cron` line to change it) and can be started manually from the Actions tab. Add these repository secrets under **Settings > Secrets and variables > Actions**:
+
+- Required: `OPENAI_API_KEY`, `FROM_EMAIL`, `TO_EMAIL`, `APP_PASSWORD`
+- Recommended: `PROXY_USERNAME`, `PROXY_PASSWORD`. GitHub's runners are blocked by YouTube, so without a proxy YouTube videos are skipped.
+- Optional: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` to keep history in a hosted database. Without them, each run uses a fresh Postgres container, which is enough to email the last 24 hours of news.
+
+A run fails when no email is sent, including days with nothing new to summarize.
+
+## Tests
+
+```bash
+uv run pytest
+```
+
+The tests use in-memory SQLite and fake the RSS feeds, OpenAI, and SMTP, so they need no credentials or network access. They also run on every pull request via `.github/workflows/tests.yml`.
+
 ## Customizing
 
 - **Sources:** YouTube channel IDs live in `app/config.py`; RSS feed URLs are in the scrapers under `app/scrapers/`.

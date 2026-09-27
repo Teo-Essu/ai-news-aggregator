@@ -1,0 +1,48 @@
+name: Daily digest
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-digest
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Used when the POSTGRES_HOST secret is not set. Each run then starts from an
+    # empty database, which is fine because every run only looks at the last 24 hours.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_news_aggregator
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+      TO_EMAIL: ${{ secrets.TO_EMAIL }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+      PROXY_USERNAME: ${{ secrets.PROXY_USERNAME }}
+      PROXY_PASSWORD: ${{ secrets.PROXY_PASSWORD }}
+      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST || 'localhost' }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT || '5432' }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'ai_news_aggregator' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - run: uv sync --locked --no-dev
+      - run: uv run python -m app.database.create_tables
+      - run: uv run python -m app.daily_runner
