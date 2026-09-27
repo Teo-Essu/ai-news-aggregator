@@ -32,6 +32,7 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         "email": {},
         "success": False
     }
+    errors = []
     
     try:
         logger.info("\n[1/5] Scraping articles from sources...")
@@ -62,20 +63,27 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         results["digests"] = digest_result
         logger.info(f"✓ Created {digest_result['processed']} digests "
                     f"({digest_result['failed']} failed out of {digest_result['total']} total)")
+        if digest_result["failed"]:
+            errors.append(f"{digest_result['failed']} of {digest_result['total']} digests failed")
         
         logger.info("\n[5/5] Generating and sending email digest...")
         email_result = send_digest_email(hours=hours, top_n=top_n)
         results["email"] = email_result
         
-        if email_result["success"]:
-            logger.info(f"✓ Email sent successfully with {email_result['articles_count']} articles")
-            results["success"] = True
-        else:
+        if not email_result["success"]:
             logger.error(f"✗ Failed to send email: {email_result.get('error', 'Unknown error')}")
+            errors.append(f"Email failed: {email_result.get('error', 'Unknown error')}")
+        elif email_result["sent"]:
+            logger.info(f"✓ Email sent successfully with {email_result['articles_count']} articles")
+        else:
+            logger.info(f"✓ No email sent: {email_result['reason']}")
         
     except Exception as e:
         logger.error(f"Pipeline failed with error: {e}", exc_info=True)
-        results["error"] = str(e)
+        errors.append(f"Pipeline error: {e}")
+    
+    results["errors"] = errors
+    results["success"] = not errors
     
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
@@ -89,7 +97,15 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
     logger.info(f"Scraped: {results['scraping']}")
     logger.info(f"Processed: {results['processing']}")
     logger.info(f"Digests: {results['digests']}")
-    logger.info(f"Email: {'Sent' if results['success'] else 'Failed'}")
+    email_result = results["email"]
+    if email_result.get("sent"):
+        email_status = "Sent"
+    elif email_result.get("success"):
+        email_status = "Not sent (no digests)"
+    else:
+        email_status = "Failed"
+    logger.info(f"Email: {email_status}")
+    logger.info(f"Result: {'Success' if results['success'] else 'Failed: ' + '; '.join(errors)}")
     logger.info("=" * 60)
     
     return results
