@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 6 * * *"
   workflow_dispatch:
+    inputs:
+      hours:
+        description: Hours to look back for new articles
+        type: number
+        default: 24
 
 concurrency:
   group: daily-digest
@@ -45,4 +50,6 @@ jobs:
       - uses: astral-sh/setup-uv@v10.2.0
       - run: uv sync --locked --no-dev
       - run: uv run python -m app.database.create_tables
-      - run: uv run python -m app.daily_runner
+      - run: uv run python -m app.daily_runner --hours "$HOURS"
+        env:
+          HOURS: ${{ inputs.hours || 24 }}

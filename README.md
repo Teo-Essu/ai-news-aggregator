@@ -38,6 +38,7 @@ uv run python -m app.database.create_tables
 
 ```bash
 uv run python -m app.daily_runner
+uv run python -m app.daily_runner --hours 168 --top-n 5   # look back a week, email the top 5
 ```
 
 The process exits with status 1 if any step hits a real error (see below) and 0 otherwise, so it can be scheduled with cron or a CI scheduler.
@@ -54,7 +55,7 @@ uv run python -m app.services.process_email      # rank and send email
 
 ## Scheduling with GitHub Actions
 
-`.github/workflows/daily-digest.yml` runs the pipeline every day at 06:00 UTC (edit the `cron` line to change it) and can be started manually from the Actions tab. Add these repository secrets under **Settings > Secrets and variables > Actions**:
+`.github/workflows/daily-digest.yml` runs the pipeline every day at 06:00 UTC (edit the `cron` line to change it). To run it on demand, open **Actions > Daily digest > Run workflow**; the "Hours to look back" field lets you widen the window (for example `168` for a week) when the last 24 hours had nothing new. Add these repository secrets under **Settings > Secrets and variables > Actions**:
 
 - Required: `OPENAI_API_KEY`, `FROM_EMAIL`, `TO_EMAIL`, `APP_PASSWORD`
 - Recommended: `PROXY_USERNAME`, `PROXY_PASSWORD`. GitHub's runners are blocked by YouTube, so without a proxy YouTube videos are skipped.
